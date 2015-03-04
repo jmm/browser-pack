@@ -35,13 +35,20 @@ module.exports = function (opts) {
     var prelude = opts.prelude || defaultPrelude;
     var preludePath = opts.preludePath ||
         path.relative(basedir, defaultPreludePath).replace(/\\/g, '/');
-    
-    var lineno = 1 + newlinesIn(prelude);
+
+    var pragma = opts.pragma;
+
+    var preludeLineno = 0 + ((pragma && newlinesIn(pragma)) || 0);
+    var lineno = preludeLineno + newlinesIn(prelude) + 1;
     var sourcemap;
     
     return stream;
     
     function write (row, enc, next) {
+        if (first && pragma) {
+            stream.push(Buffer(pragma));
+        }
+
         if (first && opts.standalone) {
             var pre = umd.prelude(opts.standalone).trim();
             stream.push(Buffer(pre + 'return '));
@@ -57,7 +64,7 @@ module.exports = function (opts) {
                 sourcemap = combineSourceMap.create();
                 sourcemap.addFile(
                     { sourceFile: preludePath, source: prelude },
-                    { line: 0 }
+                    { line: preludeLineno }
                 );
             }
             sourcemap.addFile(
