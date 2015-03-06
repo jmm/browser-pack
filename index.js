@@ -38,7 +38,7 @@ module.exports = function (opts) {
 
     var pragma = opts.pragma;
 
-    var preludeLineno = 0 + ((pragma && newlinesIn(pragma)) || 0);
+    var preludeLineno = (pragma && newlinesIn(pragma)) || 0;
     var lineno = preludeLineno + newlinesIn(prelude) + 1;
     var sourcemap;
     
